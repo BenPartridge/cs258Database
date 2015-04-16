@@ -1,0 +1,186 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using MySql.Data.MySqlClient;
+using MySql.Data;
+using System.Data;
+using MySql.Data.Common;
+using MySql.Data.Types;
+
+/// <summary>
+/// Summary description for Class1
+/// </summary>
+
+    public class DatabaseHandler
+
+    {
+        //connection string
+        MySql.Data.MySqlClient.MySqlConnection conn;
+
+
+        public void ConnectDatabase()
+        {
+            string myConnectionString;
+
+            myConnectionString = "server=173.194.225.82;uid=cs358;" +
+                 "pwd=USIcs358;database=cs358database;";
+
+            try
+            {
+                conn = new MySql.Data.MySqlClient.MySqlConnection();
+                conn.ConnectionString = myConnectionString;
+                conn.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+
+        public void CreateTable()
+        {
+            try
+            {
+                ConnectDatabase();
+                MySqlCommand cmd = conn.CreateCommand();
+                cmd.CommandText = "CREATE TABLE IF NOT EXISTS `CourseTable09333` (" +
+                "`id` INT AUTO_INCREMENT," +
+                "`coursetitle` VARCHAR(255)," +
+                "`duration` VARCHAR(255)," +
+                "`instructor` VARCHAR(255)," +
+                "`categories` VARCHAR(255)," +
+                "`description` TEXT, " +
+                "`startdate` DATE, " +
+                "PRIMARY KEY(id));";
+
+                cmd.ExecuteNonQuery();
+
+                cmd.CommandText = "CREATE TABLE IF NOT EXISTS `StudentCourse039393` (" +
+                "`id` INT AUTO_INCREMENT," +
+                "`firstname` VARCHAR(255)," +
+                "`lastname` VARCHAR(255)," +
+                "`gender` VARCHAR(255)," +
+                "`email` VARCHAR(255)," +
+                "`experience` TEXT, " +
+                "`birthdate` DATE, " +
+                "PRIMARY KEY(id));";
+
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+              if( conn != null )  conn.Close();
+            }
+        }
+
+        private void ExcecuteCommand(string sql)
+        {
+            try
+            {
+
+                ConnectDatabase();
+                MySqlCommand cmd = conn.CreateCommand();
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
+        }
+        
+        public void ImportData()
+        {
+            ExcecuteCommand("LOAD DATA LOCAL INFILE 'C:/Users/hshi/Downloads/CourseTable.txt' INTO TABLE CourseTable COLUMNS TERMINATED BY '|';");
+        }
+
+
+        public void InsertValues()
+        {
+            ExcecuteCommand("INSERT INTO StudentCourse(firstname, lastname, gender, email, experience,birthdate) VALUES('hello', 'kitty','female','hellokitty@hotmail.com','games','2009-03-05')");
+        }
+
+        public void DeleteTable()
+        {
+
+            ExcecuteCommand("DROP TABLE IF EXISTS `CourseTable`;");
+               
+        }
+
+
+
+        private DataTable RetrieveDataTable(string sql)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                ConnectDatabase();
+                MySqlDataAdapter adr = new MySqlDataAdapter(sql, conn);
+                adr.SelectCommand.CommandType = CommandType.Text;
+                adr.Fill(dt); 
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{oops - {0}", ex.Message);
+            }
+            finally
+            {
+                if (conn != null) conn.Close();
+            }
+
+            return dt;
+        }
+
+
+        public DataTable RetrieveTablefromCourseTable()
+        {
+            return RetrieveDataTable("select * from CourseTable;");
+        }
+
+        public DataTable RetrieveTablefromStudentCourse()
+        {
+            return RetrieveDataTable("select * from StudentCourse;");
+        }
+
+        public MySqlDataReader RetrieveData( string sql)
+        {
+            MySqlDataReader reader = null;
+            try
+            {
+                ConnectDatabase();
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+
+                reader = cmd.ExecuteReader();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("{oops - {0}", ex.Message);
+            }
+            return reader;
+
+
+        }
+
+        public void CloseConnection()
+        {
+            conn.Close();
+        }
+
+    }
+
+
+
