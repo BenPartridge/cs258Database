@@ -27,24 +27,43 @@ public partial class About : Page
         foreach (DataRow row in dt.Rows)
         {
             string classNames = row.Field<string>(1);
-            
 
-            ClassList.DataSource = classNames;
-            ClassList.DataBind();
+            ListItem item = new ListItem(classNames);
+
+            ClassList.Items.Add(item);            
         }
     }
-
-    protected void RBSignUp_CheckedChanged(object sender, EventArgs e)
+ 
+    protected void ButtonSelect_Click(object sender, EventArgs e)
     {
-    //    DataTable dt = database.RetrieveTablefromCourseTable();
+        DataTable dt = database.RetrieveTablefromCourseTable();
 
-    //    if (ClassList.)
-    //    {
+        int index = ClassList.SelectedIndex;
 
-    //    }
-    //    else if (RBSignUp.Checked == true)
-    //    {
-    //        ++dt.PrimaryKey[]
-    //    }
+        string[] name = dt.Rows[index].ItemArray.Select(x => x.ToString()).ToArray();
+
+        DataTable classes = new DataTable();
+
+        classes.Columns.Add(name[0]);
+        classes.Columns.Add(name[1]);
+        classes.Columns.Add(name[2]);
+        classes.Columns.Add(name[3]);
+        classes.Columns.Add(name[4]);
+        classes.Columns.Add(name[5]);
+        classes.Columns.Add(name[6]);
+        classes.Columns.Add(name[7]);
+
+        GridView1.DataSource = classes;
+        GridView1.DataBind();        
+    }
+
+    //protected virtual GridViewRow CreateRow(string[] )
+    //{
+
+    //}
+
+    protected void ButtonYes_Click(object sender, EventArgs e)
+    {
+        
     }
 }
